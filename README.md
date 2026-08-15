@@ -1,4 +1,4 @@
-# Semantic CI Intelligence
+# Semantic CI 
 
 Cross-repository CI failure prediction using code-diff content + pipeline
 metadata, with predictions converted into a fail-fast job scheduling policy.

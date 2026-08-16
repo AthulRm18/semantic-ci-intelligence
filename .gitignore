@@ -4,3 +4,5 @@ __pycache__/
 data/raw/
 data/validation/*.json
 .venv/
+
+write_all_files.ps1

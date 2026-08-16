@@ -1,0 +1,20 @@
+[project]
+name = "ci-intel"
+version = "0.1.0"
+description = "Semantic CI failure prediction and fail-fast scheduling"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "python-dotenv",
+    "pandas",
+    "lightgbm",
+    "scikit-learn",
+    "joblib",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

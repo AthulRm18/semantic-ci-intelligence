@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: ci-intel
+Version: 0.1.0
+Summary: Semantic CI failure prediction and fail-fast scheduling
+Requires-Python: >=3.10
+Requires-Dist: requests
+Requires-Dist: python-dotenv
+Requires-Dist: pandas
+Requires-Dist: lightgbm
+Requires-Dist: scikit-learn
+Requires-Dist: joblib

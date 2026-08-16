@@ -1,7 +1,7 @@
 """
 GitHub Actions data collection, as a reusable module.
 
-Same logic you already validated works â€” moved here so it can be imported
+Same logic you already validated works — moved here so it can be imported
 and tested, rather than only runnable as a top-level script.
 """
 
@@ -64,7 +64,7 @@ class GitHubCIClient:
         """
         Fetch completed workflow runs, newest first.
         If since_run_id is given, stop once we reach a run we've already
-        collected â€” this is what makes re-collection incremental instead
+        collected — this is what makes re-collection incremental instead
         of always re-fetching everything from scratch.
         """
         runs = []
@@ -85,7 +85,7 @@ class GitHubCIClient:
                 new_runs = [r for r in page_runs if r["id"] > since_run_id]
                 runs.extend(new_runs)
                 if len(new_runs) < len(page_runs):
-                    # hit runs we've already seen â€” stop paginating
+                    # hit runs we've already seen — stop paginating
                     break
             else:
                 runs.extend(page_runs)
@@ -109,16 +109,31 @@ class GitHubCIClient:
         if not data or "files" not in data:
             result = {
                 "files_changed": None, "additions": None, "deletions": None,
-                "patch_chars": None, "changed_filenames": None,
+                "patch_chars": None, "changed_filenames": None, "diff_text": None,
             }
         else:
             files = data["files"]
+            # concatenate actual patch text (filename + patch) for embedding later.
+            # Capped at 4000 chars total to keep the CSV manageable and because
+            # embedding models truncate long input anyway — the first part of a
+            # diff is usually the most informative for "what kind of change is this".
+            patch_parts = []
+            running_len = 0
+            for f in files:
+                snippet = f"# {f['filename']}\n{f.get('patch', '')}\n"
+                if running_len + len(snippet) > 4000:
+                    break
+                patch_parts.append(snippet)
+                running_len += len(snippet)
+            diff_text = "".join(patch_parts)
+
             result = {
                 "files_changed": len(files),
                 "additions": data.get("stats", {}).get("additions"),
                 "deletions": data.get("stats", {}).get("deletions"),
                 "patch_chars": sum(len(f.get("patch", "")) for f in files),
                 "changed_filenames": json.dumps([f["filename"] for f in files]),
+                "diff_text": diff_text,
             }
         self._commit_cache[sha] = result
         return result
@@ -134,7 +149,7 @@ def collect(repo: str = TARGET_REPO, max_runs: int = MAX_RUNS_PER_COLLECTION,
             incremental: bool = True) -> pd.DataFrame:
     """
     Collect CI data for a repo. If incremental=True and a previous CSV
-    exists, only fetches runs newer than what's already saved and appends â€”
+    exists, only fetches runs newer than what's already saved and appends —
     otherwise does a full fresh pull.
     """
     client = GitHubCIClient()
